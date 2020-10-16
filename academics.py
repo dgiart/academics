@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 from bs4 import BeautifulSoup
 from datetime import date
+import sys, os, time
 
 def age(birthDate):
     actualDate = date.today()
@@ -43,14 +44,15 @@ def get_name_birth(url, _id):
         nameInSoup = soup.find('a', {"class" :"nas-siteHeader nas-siteHeader-level1"})
         nameUncleaned = nameInSoup.contents[0]
         name = re.sub("\d|\\.|\(|\)|\r|\n|\t","",nameUncleaned)
-        print(f'name = {name}\n')
+        # print(f'name = {name}\n')
     except:
-        print ('NO name')
+        pass
+        # print ('NO name')
     try:
         info = soup.find('div', {"class" :"FontContentPersonalSite"})
         birth = re.split(' +',str(info.contents[0]))
         birthDate = birth[1]
-        print(f'info =\n {birthDate}\n\n')
+        # print(f'info =\n {birthDate}\n\n')
     except:
         pass
         # print ('NO info\n\n')
@@ -68,13 +70,28 @@ def get_name_birth(url, _id):
 
 
 def main():
+    start = time.time()
     print (age('15.03.1979'))
-    url = 'http://nas.gov.ua/UA/Members/Pages/Academicians.aspx'
-    academics = academicsIdList(url)
-    n = 1
-    for academic in academics:
-        print(f'{n}:  {academic}')
-        n += 1
+    urlAcad = 'http://nas.gov.ua/UA/Members/Pages/Academicians.aspx'
+    members = []
+    academicsIds = academicsIdList(urlAcad)
+    # n = 1
+    # for academicId in academicsIds:
+    #     print(f'{n}:  {academicId}')
+    #     n += 1
+    for academicId in academicsIds:
+        url = url = f'http://nas.gov.ua/UA/PersonalSite/Pages/Biography.aspx?PersonID={academicId}'
+        pers = get_name_birth(url,academicId)
+        if pers != {}:
+            print (f"id = {pers['id']}, name: {pers['name']}, birthDate: {pers['birthDate']}")
+            # age_ = age(pers['birthDate'])
+            # pers['age'] = age_
+            # members.append(pers)
+    # print(f'members: {len(members)}\n')
+    # with open('academics.pckl','wb') as file:
+    #     pickle.dump(members, file)
+    # fin = time.time()
+    # print (f'Time fo {len(academicsIds)} people: {fin - start}')
 
 
 # def main():
@@ -91,17 +108,17 @@ def main():
 #         url = f'http://nas.gov.ua/UA/PersonalSite/Pages/Biography.aspx?PersonID={id0[:len(id0) - len(str(_id))] + str(_id)}'
 #         pers = get_name_birth(url,_id)
 #
-#         if pers != {}:
-#             age_ = age(pers['birthDate'])
-#             name = pers['name']
-#             print (f'age = {age_}, name: {name}')
-#             members.append(pers)
-#     print(f'members: {len(members)}\n')
-#     print(members)
-#     with open('academics.pckl','wb') as file:
-#         pickle.dump(members, file)
-#     fin = time.time()
-#     print (f'Time fo {len(ids)} people: {fin - start}')
+    #     if pers != {}:
+    #         age_ = age(pers['birthDate'])
+    #         name = pers['name']
+    #         print (f'age = {age_}, name: {name}')
+    #         members.append(pers)
+    # print(f'members: {len(members)}\n')
+    # print(members)
+    # with open('academics.pckl','wb') as file:
+    #     pickle.dump(members, file)
+    # fin = time.time()
+    # print (f'Time fo {len(ids)} people: {fin - start}')
 
 
 
