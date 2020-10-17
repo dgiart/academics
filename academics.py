@@ -21,7 +21,7 @@ def age(birthDate):
         else:
             return age[2] - 1
 
-def academicsIdList(url):
+def membersIdList(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text,features="lxml")
     academicsPages = soup.findAll("a",{"class":"onHoverBold"})
@@ -31,7 +31,7 @@ def academicsIdList(url):
         ids.append(num)
     return ids
 def get_name_birth(url, _id):
-    print(f'id = {_id}')
+    # print(f'id = {_id}')
     # import requests
     #
     # from bs4 import BeautifulSoup
@@ -73,8 +73,12 @@ def main():
     start = time.time()
     print (age('15.03.1979'))
     urlAcad = 'http://nas.gov.ua/UA/Members/Pages/Academicians.aspx'
+    urlCorr = 'http://nas.gov.ua/UA/Members/Pages/CorrespondingMembers.aspx'
+    acads = []
+    corrs = []
     members = []
-    academicsIds = academicsIdList(urlAcad)
+    academicsIds = membersIdList(urlAcad)
+    corsIds = membersIdList(urlCorr)
     # n = 1
     # for academicId in academicsIds:
     #     print(f'{n}:  {academicId}')
@@ -83,15 +87,32 @@ def main():
         url = url = f'http://nas.gov.ua/UA/PersonalSite/Pages/Biography.aspx?PersonID={academicId}'
         pers = get_name_birth(url,academicId)
         if pers != {}:
-            print (f"id = {pers['id']}, name: {pers['name']}, birthDate: {pers['birthDate']}")
-            # age_ = age(pers['birthDate'])
-            # pers['age'] = age_
-            # members.append(pers)
+            age_ = 0
+            # print (f"id = {pers['id']}, name: {pers['name']}, birthDate: {pers['birthDate']}")
+            try:
+                age_ = age(pers['birthDate'])
+                pers['age'] = age_
+            except:
+                pass
+            acads.append(pers)
+    for corId in corsIds:
+        url = f'http://nas.gov.ua/UA/PersonalSite/Pages/Biography.aspx?PersonID={corId}'
+        pers = get_name_birth(url,corId)
+        if pers != {}:
+            age_ = 0
+            # print (f"id = {pers['id']}, name: {pers['name']}, birthDate: {pers['birthDate']}")
+            try:
+                age_ = age(pers['birthDate'])
+                pers['age'] = age_
+            except:
+                pass
+            corrs.append(pers)
+    members = acads + corrs
     # print(f'members: {len(members)}\n')
-    # with open('academics.pckl','wb') as file:
+    # with open('memberss.pckl','wb') as file:
     #     pickle.dump(members, file)
-    # fin = time.time()
-    # print (f'Time fo {len(academicsIds)} people: {fin - start}')
+    fin = time.time()
+    print (f'Time fo {len(members)} people: {fin - start}')
 
 
 # def main():
